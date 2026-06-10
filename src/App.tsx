@@ -107,7 +107,8 @@ const App: React.FC = () => {
   const [selectedModel, setSelectedModel] = useState<string>('OpenRouter Auto');
   const [selectedPlugin, setSelectedPlugin] = useState<string>('Test Runner');
   const [selectedSkill, setSelectedSkill] = useState<string>('Syntax Repair');
-  const [agentMode, setAgentMode] = useState<AgentMode>('assist');
+  const [agentStatus, setAgentStatus] = useState<string>('idle');
+  const [agentMessage, setAgentMessage] = useState<string>('Agent ready');
 
   useEffect(() => {
     const savedSessions = localStorage.getItem('codeSessions');
