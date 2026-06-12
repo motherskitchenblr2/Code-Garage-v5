@@ -3,7 +3,7 @@ export default async function handler(req: any, res: any) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { code, language, model, agentMode, skill } = req.body || {};
+  const { code, language, model, agentMode, skill, plugin, customPrompt } = req.body || {};
 
   if (!code) {
     return res.status(400).json({ error: 'Missing code' });
@@ -37,6 +37,7 @@ export default async function handler(req: any, res: any) {
 
   const systemPrompt = `Role: Senior debug agent. Return ONLY valid JSON. No markdown. No prose.
 ${skillMap[skill] || 'Focus: all bug types equally.'}
+${plugin ? `Active Plugin Diagnostic: Apply specialized logic checks for "${plugin}".` : ''}
 
 Output schema:
 {
@@ -64,7 +65,10 @@ Rules:
 - Low=style
 - Truncate fixedCode if >200 lines`;
 
-  const userPrompt = `Language: ${language || 'auto'}\nMode: ${agentMode || 'assist'}\n\nCode:\n${code}`;
+  let userPrompt = `Language: ${language || 'auto'}\nMode: ${agentMode || 'assist'}\n\nCode:\n${code}`;
+  if (customPrompt) {
+    userPrompt += `\n\nUser Question/Instruction:\n${customPrompt}\nPlease address this instruction specifically in your JSON "summary" response output.`;
+  }
 
   try {
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
