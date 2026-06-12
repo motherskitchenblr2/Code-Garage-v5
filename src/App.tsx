@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Play,
@@ -18,7 +18,6 @@ import {
   Sparkles,
   ChevronDown,
   Bot,
-  PanelRightOpen,
   Terminal as TerminalIcon,
   Search,
   HelpCircle,
@@ -186,40 +185,7 @@ const App: React.FC = () => {
     setTerminalLogs(prev => [...prev, `[${timestamp}] ${prefix} ${msg}`]);
   };
 
-  // Keyboard Shortcuts Setup
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === 'Enter') {
-        e.preventDefault();
-        analyzeCode();
-      }
-      if (e.ctrlKey && e.shiftKey && e.key === 'F') {
-        e.preventDefault();
-        applyAllFixes();
-      }
-      if (e.key === 'Escape') {
-        setShowDiff(false);
-        setShowAgentModal(false);
-        setShowLoginModal(false);
-        setShowShortcutsCheatSheet(false);
-      }
-      if (e.ctrlKey && e.key === '/') {
-        e.preventDefault();
-        setCurrentView(prev => prev === 'sentinel' ? 'editor' : 'sentinel');
-      }
-      if (e.ctrlKey && e.key === 'k') {
-        e.preventDefault();
-        const selectEl = document.getElementById('model-select-dropdown');
-        if (selectEl) selectEl.focus();
-      }
-      if (e.key === '?' && document.activeElement?.tagName !== 'TEXTAREA' && document.activeElement?.tagName !== 'INPUT') {
-        e.preventDefault();
-        setShowShortcutsCheatSheet(prev => !prev);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [code, fixedCode, issues, selectedModel, agentMode, selectedSkill, detectedLanguage]);
+
 
   // Debounced Sentinel Scanner Watcher
   useEffect(() => {
@@ -293,7 +259,7 @@ const App: React.FC = () => {
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
     const toast = document.createElement('div');
     toast.className = `fixed bottom-4 right-4 px-5 py-3 rounded-xl font-semibold z-[120] border ${
-      type === 'error' ? 'bg-red-955/80 text-red-400 border-red-500' : 
+      type === 'error' ? 'bg-red-950/80 text-red-400 border-red-500' : 
       type === 'success' ? 'bg-black/90 text-[#FF5F00] border-[#FF5F00]' :
       'bg-[#121212]/90 text-white border-white/20'
     } shadow-lg backdrop-blur-md`;
@@ -302,7 +268,11 @@ const App: React.FC = () => {
     setTimeout(() => toast.remove(), 5000);
   };
 
-  const analyzeCode = async () => {
+  const escapeRegExp = (str: string) => {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  };
+
+  const analyzeCode = useCallback(async () => {
     setIsAnalyzing(true);
     setIsScanning(true);
     setScanProgress(0);
@@ -391,9 +361,9 @@ const App: React.FC = () => {
     } finally {
       setIsAnalyzing(false);
     }
-  };
+  }, [code, language, detectedLanguage, selectedModel, agentMode, selectedSkill, selectedPlugin, autoApplyFixes]);
 
-  const applyAllFixes = () => {
+  const applyAllFixes = useCallback(() => {
     if (!fixedCode) return;
 
     const btn = document.getElementById('fix-all-btn');
@@ -402,9 +372,10 @@ const App: React.FC = () => {
       setTimeout(() => btn.classList.remove('animate-pulse'), 800);
     }
 
-    // FIX 2: Apply all fixes using reduce correctly
+    // FIX 2: Apply all fixes using reduce correctly with global regex escape
     const allFixed = issues.reduce((acc, issue) => {
-      return acc.replace(issue.original, issue.fixed);
+      const escaped = escapeRegExp(issue.original);
+      return acc.replace(new RegExp(escaped, 'g'), issue.fixed);
     }, code);
     
     setCode(allFixed);
@@ -435,7 +406,42 @@ const App: React.FC = () => {
     const updatedSessions = [newSession, ...sessions].slice(0, 50);
     saveSessions(updatedSessions);
     setShowReport(true);
-  };
+  }, [code, fixedCode, issues, language, detectedLanguage, tokensUsed, promptTokens, completionTokens, selectedModel, sessions]);
+
+  // Keyboard Shortcuts Setup
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === 'Enter') {
+        e.preventDefault();
+        analyzeCode();
+      }
+      if (e.ctrlKey && e.shiftKey && e.key === 'F') {
+        e.preventDefault();
+        applyAllFixes();
+      }
+      if (e.key === 'Escape') {
+        setShowDiff(false);
+        setShowAgentModal(false);
+        setShowLoginModal(false);
+        setShowShortcutsCheatSheet(false);
+      }
+      if (e.ctrlKey && e.key === '/') {
+        e.preventDefault();
+        setCurrentView(prev => prev === 'sentinel' ? 'editor' : 'sentinel');
+      }
+      if (e.ctrlKey && e.key === 'k') {
+        e.preventDefault();
+        const selectEl = document.getElementById('model-select-dropdown');
+        if (selectEl) selectEl.focus();
+      }
+      if (e.key === '?' && document.activeElement?.tagName !== 'TEXTAREA' && document.activeElement?.tagName !== 'INPUT') {
+        e.preventDefault();
+        setShowShortcutsCheatSheet(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [analyzeCode, applyAllFixes]);
 
   const sendAgentMessage = async (text: string) => {
     if (!text.trim()) return;
@@ -980,7 +986,8 @@ const App: React.FC = () => {
                   if (sentinelIssues.length > 0) {
                     setIssues(sentinelIssues);
                     const allFixed = sentinelIssues.reduce((acc, issue) => {
-                      return acc.replace(issue.original, issue.fixed);
+                      const escaped = escapeRegExp(issue.original);
+                      return acc.replace(new RegExp(escaped, 'g'), issue.fixed);
                     }, code);
                     setCode(allFixed);
                     setSentinelIssues([]);
