@@ -133,7 +133,7 @@ const App: React.FC = () => {
   const [enableSentinel, setEnableSentinel] = useState(false);
 
   // v5.0 Added States
-  const [aboutDocPage, setAboutDocPage] = useState<'whitepaper' | 'changelog'>('whitepaper');
+  const [aboutDocPage, setAboutDocPage] = useState<'whitepaper' | 'changelog' | 'comparison'>('whitepaper');
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
     `[SYSTEM] Volt Diagnostic Engine initialized. Ready for v5.0 operations.`
   ]);
@@ -642,7 +642,7 @@ const App: React.FC = () => {
           </button>
 
           {/* DOCUMENT SWITCHER TAB */}
-          <div className="flex gap-4 mb-8 justify-center select-none font-sans">
+          <div className="flex flex-wrap gap-3 mb-8 justify-center select-none font-sans">
             <button
               onClick={() => setAboutDocPage('whitepaper')}
               className={`px-4 py-2 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
@@ -661,11 +661,21 @@ const App: React.FC = () => {
                   : 'bg-white text-black border-black/20 hover:bg-black/5'
               }`}
             >
-              UPGRADE LOG: DEAD-TO-ALIVE (SPEC-002)
+              UPGRADE LOG (SPEC-002)
+            </button>
+            <button
+              onClick={() => setAboutDocPage('comparison')}
+              className={`px-4 py-2 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                aboutDocPage === 'comparison'
+                  ? 'bg-black text-white border-black shadow-md'
+                  : 'bg-white text-black border-black/20 hover:bg-black/5'
+              }`}
+            >
+              COMPARISON MATRIX (SPEC-003)
             </button>
           </div>
 
-          {aboutDocPage === 'whitepaper' ? (
+          {aboutDocPage === 'whitepaper' && (
             <>
               <div className="text-center mb-10 border-b-2 border-black pb-8">
                 <div className="text-xs tracking-[4px] uppercase font-sans font-bold text-gray-500 mb-2">Technical Specification Sheet</div>
@@ -696,7 +706,7 @@ const App: React.FC = () => {
                 </ul>
               </div>
 
-              <div className="space-y-8 text-sm leading-relaxed text-gray-900">
+              <div className="space-y-8 text-sm leading-relaxed text-gray-900 font-serif">
                 <section>
                   <h2 className="font-sans font-bold text-lg border-b border-black pb-1 mb-3 uppercase">2. Core Architecture Strategy</h2>
                   <p className="mb-3">
@@ -726,7 +736,9 @@ const App: React.FC = () => {
                 </section>
               </div>
             </>
-          ) : (
+          )}
+
+          {aboutDocPage === 'changelog' && (
             <>
               <div className="text-center mb-10 border-b-2 border-black pb-8">
                 <div className="text-xs tracking-[4px] uppercase font-sans font-bold text-gray-500 mb-2">Technical specs restoration log</div>
@@ -790,6 +802,92 @@ const App: React.FC = () => {
                     **Restoration Details**: Implemented a toggleable virtual console at the bottom of the editor. The stream logs API calls, model tags, roundtrip response times, parser successes, and warning alerts in color-coded output lines.
                   </p>
                 </section>
+              </div>
+            </>
+          )}
+
+          {aboutDocPage === 'comparison' && (
+            <>
+              <div className="text-center mb-10 border-b-2 border-black pb-8">
+                <div className="text-xs tracking-[4px] uppercase font-sans font-bold text-gray-500 mb-2">Upgrade telemetry comparison matrix</div>
+                <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight uppercase leading-tight mb-4">
+                  SPEC-003: UPGRADE SUMMARY<br />& COMPARISON MATRIX
+                </h1>
+                <div className="text-sm font-sans font-semibold text-gray-700">
+                  Prepared by: <span className="underline">AntiGravity AI Co-Developer</span> & <span className="underline">Gemini AI 3.5 Flash</span>
+                </div>
+                <div className="text-xs text-gray-500 mt-2 font-sans">Scope: v4.9 (Legacy Placeholder) vs v5.0 (Agentic Hub)</div>
+              </div>
+
+              <div className="mb-8 px-6 py-4 bg-gray-50 border-l-4 border-black font-serif">
+                <h2 className="font-sans font-bold text-sm uppercase tracking-wider mb-2">Notice</h2>
+                <p className="text-sm leading-relaxed text-gray-800 italic">
+                  This specification matrix details the comparative analysis of features that were dead or placeholder in the legacy codebase and have been brought to full functional life in Volt Code AI v5.0. This comparative process is set as a standard requirement for all future major releases.
+                </p>
+              </div>
+
+              {/* COMPARISON TABLE */}
+              <div className="overflow-x-auto font-sans text-xs mb-8">
+                <table className="min-w-full border border-black/35 text-left border-collapse leading-relaxed">
+                  <thead>
+                    <tr className="bg-black text-white uppercase tracking-wider text-[10px]">
+                      <th className="border border-black px-4 py-3 font-bold">Feature Name</th>
+                      <th className="border border-black px-4 py-3 font-bold">v4.9 State (Before / Dead)</th>
+                      <th className="border border-black px-4 py-3 font-bold">v5.0 State (After / Alive)</th>
+                      <th className="border border-black px-4 py-3 font-bold">Validation</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="bg-gray-50 hover:bg-gray-100/50">
+                      <td className="border border-black/30 px-4 py-3 font-bold">Sentinel Watchdog</td>
+                      <td className="border border-black/30 px-4 py-3 text-red-700 italic">Static labels; dead placeholders.</td>
+                      <td className="border border-black/30 px-4 py-3 text-green-800 font-medium">Debounced active watcher scan, severity heatbars, warning log feeds & instant patch buttons.</td>
+                      <td className="border border-black/30 px-4 py-3 text-green-700 font-bold">✔ Verified</td>
+                    </tr>
+                    <tr className="hover:bg-gray-100/50">
+                      <td className="border border-black/30 px-4 py-3 font-bold">Agent Orchestrator</td>
+                      <td className="border border-black/30 px-4 py-3 text-red-700 italic">Duplicate settings selectors modal; no actual agent features.</td>
+                      <td className="border border-black/30 px-4 py-3 text-green-800 font-medium">Chat console with conversation history, active workspace memory & quick audit button triggers.</td>
+                      <td className="border border-black/30 px-4 py-3 text-green-700 font-bold">✔ Verified</td>
+                    </tr>
+                    <tr className="bg-gray-50 hover:bg-gray-100/50">
+                      <td className="border border-black/30 px-4 py-3 font-bold">Refactoring Patch Engine</td>
+                      <td className="border border-black/30 px-4 py-3 text-red-700 italic">Discarded reducer results; auto-apply formatting bugs.</td>
+                      <td className="border border-black/30 px-4 py-3 text-green-800 font-medium">Modified patch logic to save and write the combined `allFixed` reducer code successfully.</td>
+                      <td className="border border-black/30 px-4 py-3 text-green-700 font-bold">✔ Verified</td>
+                    </tr>
+                    <tr className="hover:bg-gray-100/50">
+                      <td className="border border-black/30 px-4 py-3 font-bold">Unified Diff Visualizer</td>
+                      <td className="border border-black/30 px-4 py-3 text-red-700 italic">Side-by-side unhighlighted pre containers.</td>
+                      <td className="border border-black/30 px-4 py-3 text-green-800 font-medium">Custom client-side LCS diff parser rendering red deletions and green additions with numbers.</td>
+                      <td className="border border-black/30 px-4 py-3 text-green-700 font-bold">✔ Verified</td>
+                    </tr>
+                    <tr className="bg-gray-50 hover:bg-gray-100/50">
+                      <td className="border border-black/30 px-4 py-3 font-bold">Virtual Diagnostic Terminal</td>
+                      <td className="border border-black/30 px-4 py-3 text-red-700 italic">Non-existent; server timeouts failed silently.</td>
+                      <td className="border border-black/30 px-4 py-3 text-green-800 font-medium">Toggleable console panel logging server calls, response timers, parsed tokens and errors.</td>
+                      <td className="border border-black/30 px-4 py-3 text-green-700 font-bold">✔ Verified</td>
+                    </tr>
+                    <tr className="hover:bg-gray-100/50">
+                      <td className="border border-black/30 px-4 py-3 font-bold">Model Identity Badge</td>
+                      <td className="border border-black/30 px-4 py-3 text-red-700 italic">Hidden until analysis finished; minimal watermark tags.</td>
+                      <td className="border border-black/30 px-4 py-3 text-green-800 font-medium">Always visible header badge tracking engine tags, context size, and real-time scanning status.</td>
+                      <td className="border border-black/30 px-4 py-3 text-green-700 font-bold">✔ Verified</td>
+                    </tr>
+                    <tr className="bg-gray-50 hover:bg-gray-100/50">
+                      <td className="border border-black/30 px-4 py-3 font-bold">Keyboard Hotkeys</td>
+                      <td className="border border-black/30 px-4 py-3 text-red-700 italic">Non-existent.</td>
+                      <td className="border border-black/30 px-4 py-3 text-green-800 font-medium">Global shortcut hooks (Ctrl+Enter, Ctrl+Shift+F, Ctrl+/, Ctrl+K, Escape, ?) and guide.</td>
+                      <td className="border border-black/30 px-4 py-3 text-green-700 font-bold">✔ Verified</td>
+                    </tr>
+                    <tr className="hover:bg-gray-100/50">
+                      <td className="border border-black/30 px-4 py-3 font-bold">Session History Filter</td>
+                      <td className="border border-black/30 px-4 py-3 text-red-700 italic">List display with zero search capabilities.</td>
+                      <td className="border border-black/30 px-4 py-3 text-green-800 font-medium">Interactive keyword input matching summaries, languages, and models.</td>
+                      <td className="border border-black/30 px-4 py-3 text-green-700 font-bold">✔ Verified</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </>
           )}
