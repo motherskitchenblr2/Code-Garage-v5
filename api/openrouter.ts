@@ -115,7 +115,7 @@ Rules:
       })
     });
 
-    const data = await response.json();
+    const data = (await response.json()) as { choices?: Array<{ message?: { content?: string } }>; usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number } };
 
     if (!response.ok) {
       return res.status(response.status).json({ 
