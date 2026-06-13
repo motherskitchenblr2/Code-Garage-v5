@@ -1,5 +1,4 @@
 {
-{
   "compilerOptions": {
     "composite": true,
     "tsBuildInfoFile": "../node_modules/.tmp/tsconfig.api.tsbuildinfo",
@@ -13,5 +12,3 @@
   },
   "include": ["openrouter.ts"]
 }
-
-
