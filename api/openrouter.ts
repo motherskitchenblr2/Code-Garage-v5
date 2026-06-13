@@ -1,7 +1,17 @@
+/**
+ * Handle POST requests that analyze and fix submitted code using OpenRouter and return structured JSON diagnostics.
+ *
+ * Validates input (allowed plugins, customPrompt length and sanitization, presence of code), selects an appropriate model based on code characteristics or the provided model override, constructs system and user prompts (including optional skill and plugin instructions), sends the request to OpenRouter, extracts and validates JSON output (attempting to extract JSON from fenced code blocks if necessary), and responds with the parsed result augmented with token usage and the model used.
+ *
+ * On success responds with HTTP 200 and a JSON body containing the model's parsed output plus `tokensUsed`, `promptTokens`, `completionTokens`, and `modelUsed`. Returns HTTP 400 for invalid input, 405 for non-POST methods, propagates non-OK OpenRouter responses with that status, and returns HTTP 500 for server or parsing errors.
+ *
+ * @param req - Incoming HTTP request object (expects a JSON body with `code`, optional `language`, `model`, `agentMode`, `skill`, `plugin`, and `customPrompt`)
+ * @param res - HTTP response object used to send JSON responses and appropriate status codes
+ */
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
-  }
+
 
   const { code, language, model, agentMode, skill, plugin, customPrompt } = req.body || {};
 
