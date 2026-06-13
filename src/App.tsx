@@ -221,7 +221,9 @@ const App: React.FC = () => {
             setLastSentinelScan(new Date().toLocaleTimeString());
           }
         } else {
-          addLog(`[SENTINEL] Passive scan failed with HTTP ${res.status}`, 'error');
+          if (active) {
+            addLog(`[SENTINEL] Passive scan failed with HTTP ${res.status}`, 'error');
+          }
         }
       } catch (err) {
         console.error(err);
