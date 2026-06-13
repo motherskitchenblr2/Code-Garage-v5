@@ -15,7 +15,9 @@ export default async function handler(req: any, res: any) {
     'Dependency Audit'
   ];
 
-  if (plugin && !allowedPlugins.includes(plugin)) {
+  const trimmedPlugin = typeof plugin === 'string' ? plugin.trim() : plugin;
+
+  if (trimmedPlugin && !allowedPlugins.includes(trimmedPlugin)) {
     return res.status(400).json({ error: `Invalid plugin parameter. Allowed: ${allowedPlugins.join(', ')}` });
   }
 
@@ -62,7 +64,7 @@ export default async function handler(req: any, res: any) {
 
   const systemPrompt = `Role: Senior debug agent. Return ONLY valid JSON. No markdown. No prose.
 ${skillMap[skill] || 'Focus: all bug types equally.'}
-${plugin ? `Active Plugin Diagnostic: Apply specialized logic checks for "${plugin}".` : ''}
+${trimmedPlugin ? `Active Plugin Diagnostic: Apply specialized logic checks for "${trimmedPlugin}".` : ''}
 
 Output schema:
 {
