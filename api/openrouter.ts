@@ -135,10 +135,9 @@ Rules:
 
     const data = (await response.json()) as OpenRouterResponse;
 
-    if (!response.ok) {
-      return res.status(response.status).json({ 
-      error: 'OpenRouter error',
-        details: data 
+      return res.status(response.status).json({
+        error: 'OpenRouter error',
+        details: data
       });
     }
 
