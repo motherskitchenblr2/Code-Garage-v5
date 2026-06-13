@@ -135,11 +135,13 @@ Rules:
 
     const data = (await response.json()) as OpenRouterResponse;
 
+    if (!response.ok) {
       return res.status(response.status).json({
         error: 'OpenRouter error',
         details: data
       });
     }
+
 
     const text = data?.choices?.[0]?.message?.content;
     const usage = data?.usage || {};
